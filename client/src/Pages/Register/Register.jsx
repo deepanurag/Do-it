@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Register.css";
-
+import icon from "../Login/check.png";
 const Register = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -74,40 +74,51 @@ const Register = () => {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page container">
       <div className="left-section"></div>
 
       <div className="right-section">
+        <div className="center-image">
+          <img src={icon}></img>
+        </div>
         <h2 className="right">Signup</h2>
+        <p>
+          Please Fill in your Name, Email and password
+          <br /> to create a new account
+        </p>
         <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="name">name</label>
+          <label htmlFor="name">Name</label>
           <input
             type="text"
             id="name"
-            placeholder="name"
+            placeholder="Name"
             value={name}
             onChange={handleNameChange}
           />
-
-          <label htmlFor="email">Email</label>
-          <input
-            type="text"
-            id="email"
-            placeholder="Email"
-            value={email}
-            onChange={handleEmailChange}
-          />
-
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Password"
-            value={password}
-            onChange={handlePasswordChange}
-          />
+          <div className="password-box">
+            <label htmlFor="email">Email</label>
+            <input
+              type="text"
+              id="email"
+              placeholder="Email"
+              value={email}
+              onChange={handleEmailChange}
+            />
+          </div>
+          <div className="password-box">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              value={password}
+              onChange={handlePasswordChange}
+            />
+          </div>
           <br />
-          <button type="submit">Create Account</button>
+          <button className="button1" type="submit">
+            Create Account
+          </button>
           <br />
           <div className="Account">
             Already have an account?
