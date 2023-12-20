@@ -1,24 +1,22 @@
 import axios from "axios";
-import React, { createContext, useEffect, useState } from "react";
-
+import React, { createContext, useEffect, useState, useContext } from "react";
 const AuthContext = createContext();
 
 function AuthContextProvider(props) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(undefined);
 
   useEffect(() => {
     async function getLoggedIn() {
       try {
-        console.log("dikghklfgjk");
-        const response = await axios.get("http://localhost:8000/loggedIn", {
+        const response = await axios.get(`http://localhost:8000/loggedIn`, {
           withCredentials: true,
         });
-
-        setIsLoggedIn(response.data.isLoggedIn);
-      } catch (err) {
-        setError(err.message || "Failed to fetch login status");
+        console.log(response.data);
+        setIsLoggedIn(response.data);
+      } catch (error) {
+        console.error("Error checking logged in status:", error);
+        setIsLoggedIn(false);
       } finally {
         setIsLoading(false);
       }
@@ -31,10 +29,6 @@ function AuthContextProvider(props) {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
     <AuthContext.Provider value={{ isLoggedIn }}>
       {props.children}
@@ -42,4 +36,14 @@ function AuthContextProvider(props) {
   );
 }
 
-export default AuthContextProvider;
+function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthContextProvider");
+  }
+  return context;
+}
+
+export { AuthContextProvider, useAuth };
+
+export default AuthContext;

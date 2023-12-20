@@ -48,9 +48,6 @@ export const login = async (req, res) => {
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
-  console.log(email);
-  console.log(name);
-  console.log(password);
   if (!email || !password || !name) {
     return res.status(400).json({
       error: "Empty fields",
@@ -62,26 +59,19 @@ export const register = async (req, res) => {
     });
   }
   try {
-    // Check if the user already exists
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists." });
     }
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 12);
     try {
-      // Create a new user
       const newUser = await UserModel.create({
         name,
         email,
         password: hashedPassword,
         tokens: [],
       });
-
       await newUser.save();
-
-      // Return success response
       res.status(200).json({ result: newUser });
     } catch (error) {
       console.error("Error during user creation:", error);
@@ -95,68 +85,52 @@ export const register = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  const email = res.user.email;
-  //const { remainloggingtime } = req.body;
+  const { email } = res.user;
   try {
     const user = await UserModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-
-    // user.remainloggingtime = remainloggingtime;
-    // const currentTime = new Date().toLocaleTimeString();
-    // user.lastLogin = currentTime;
     await user.save();
-
     res.clearCookie("token", {
       httpOnly: true,
       expires: new Date(0),
       secure: true,
       sameSite: "none",
     });
-    // res.clearCookie("recentLogin", {
-    //   httpOnly: true,
-    //   expires: new Date(0),
-    //   secure: true,
-    //   sameSite: "none",
-    // });
-    res.status(200).json({ message: "Cookies removed." });
+    console.log(`User ${email} logged out successfully.`);
+    return res
+      .status(200)
+      .json({ message: "Logout successful. Cookies removed." });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error during logout:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to logout. Internal server error." });
   }
 };
 
 export const loggedIn = async (req, res) => {
   try {
-    // Extract the token from the Authorization header
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
-    }
-
-    const token = authHeader.split(" ")[1];
-    console.log(req.headers);
+    const token = req.cookies.token;
     if (!token) {
       return res.json(false);
     }
-
     const verifyToken = jwt.verify(token, process.env.JWT_SECRET);
-
     const rootUser = await UserModel.findOne({
       _id: verifyToken.id,
       "tokens.token": token,
     });
-
     if (rootUser) {
-      return res.json(true);
+      return res.send(true);
     } else {
-      return res.json(false);
+      return res.send(false);
     }
   } catch (err) {
-    if (err.name === "JsonWebTokenError") {
-      return res.status(401).json({ error: "Invaldsfsfid token" });
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).send("Unauthorized: Token has expired");
     }
-    return res.status(500).json({ error: "Internal Server Error" });
+    res.status(401).send("Unauthorized: No token provided or invalid token");
+    console.log(err);
   }
 };

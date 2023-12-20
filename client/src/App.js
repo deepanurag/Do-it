@@ -1,32 +1,24 @@
-import "./App.css";
+// App.js
 import { Routes, Route } from "react-router-dom";
-import AuthContext from "./context/AuthContext.js";
-import { useContext } from "react";
+import { useAuth } from "./context/AuthContext.js";
+
 import Login from "./Pages/Login/Login";
 import Register from "./Pages/Register/Register";
 import TodoList from "./Pages/Todo/Todo";
-const App = () => {
-  const LoggedIn = useContext(AuthContext);
-  console.log(LoggedIn);
-  const isLoggedIn = LoggedIn.isLoggedIn;
 
+const App = () => {
+  const { isLoggedIn } = useAuth();
+  console.log(isLoggedIn);
   return (
-    <>
+    <Routes>
       {isLoggedIn === false && (
         <>
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/*" element={<Login />} />
-          </Routes>
+          <Route path="/register" element={<Register />} />
+          <Route path="/*" element={<Login />} />
         </>
       )}
-      {isLoggedIn === true && (
-        <Routes>
-          <Route path="/*" element={<TodoList />} />
-        </Routes>
-      )}
-    </>
+      {isLoggedIn === true && <Route path="/*" element={<TodoList />} />}
+    </Routes>
   );
 };
 

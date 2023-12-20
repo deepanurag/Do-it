@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
+import "./Login.css";
+import icon from "./check.png";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,22 +20,23 @@ const Login = () => {
 
     if (email.trim() !== "" && password.trim() !== "") {
       try {
-        // Make a POST request to the login endpoint using Axios
-        const response = await fetch(`http://localhost:8000/login`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_ENDPOINT}/login`,
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          }
+        );
         const data = await response.json();
         if (response.status === 200) {
-          // console.log("loggedin");
           window.location.href = "/";
         } else {
           alert(data.message);
@@ -50,33 +52,40 @@ const Login = () => {
   };
 
   return (
-    <div className="right-section">
-      <h2 className="right">Login</h2>
-      <form className="login-form" onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          type="text"
-          id="email"
-          placeholder="Email"
-          value={email}
-          onChange={handleEmailChange}
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          placeholder="Password"
-          value={password}
-          onChange={handlePasswordChange}
-        />
-        <br />
-        <button type="submit">Login</button>
-        <br />
-        <div className="Account">
-          Don't have an account? <Link to="/register">Sign up</Link>
+    <div className="container">
+      <div className="right-section">
+        <div className="center-image">
+          <img src={icon}></img>
         </div>
-      </form>
+        <h2 className="right">Login</h2>
+        <p>Please Enter your email and password</p>
+        <form className="login-form" onSubmit={handleSubmit}>
+          <label htmlFor="email">Email</label>
+          <input
+            type="text"
+            id="email"
+            placeholder="Email"
+            value={email}
+            onChange={handleEmailChange}
+          />
+          <div className="password-box">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              value={password}
+              onChange={handlePasswordChange}
+            />
+          </div>
+          <button className="button1" type="submit">
+            Login
+          </button>
+          <div className="Account">
+            Don't have an account? <Link to="/register">Sign up</Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

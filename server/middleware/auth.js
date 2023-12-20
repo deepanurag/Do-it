@@ -1,19 +1,23 @@
 import jwt from "jsonwebtoken";
-
-const loggedInUsers = new Set();
+import UserModel from "../models/UserModel.js";
 
 export const auth = async (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized: No token provided" });
-  }
-
   try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).send("Unauthorized: No token provided");
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.id; // Attach user ID to request for further use
+    const user = await UserModel.findOne({ _id: decoded.id });
+
+    if (!user) {
+      return res.status(401).send("Unauthorized: User not found");
+    }
+    res.user = user; // Attach user to res object
     next();
-  } catch (err) {
-    return res.status(401).json({ error: "Unauthorized: Invalid token" });
+  } catch (error) {
+    console.error("Error in auth middleware:", error);
+    return res.status(401).send("Unauthorized: Invalid token");
   }
 };

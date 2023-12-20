@@ -1,34 +1,48 @@
 import express from "express";
-import bodyParser from "body-parser";
 import mongoose from "mongoose";
-import routes from "./routes/index.js";
 import dotenv from "dotenv";
+import routes from "./routes/index.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 8000;
+const CLIENT_API = process.env.CLIENT_API;
 
-// Use cors middleware with specific options
-app.use(
-  cors({
-    origin: "http://localhost:3000", // Allow requests only from this origin
-    credentials: true, // Enable credentials (cookies, authorization headers, etc.)
-  })
-);
+// CORS Configuration
+const corsOptions = {
+  origin: CLIENT_API,
+  credentials: true,
+  methods: "GET,POST",
+  allowedHeaders: "Content-Type, Authorization",
+};
 
-app.use(bodyParser.json());
+// Middleware Setup
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "30mb", extended: true }));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(cookieParser());
 
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() =>
-    app.listen(process.env.PORT, () => {
-      console.log(`Server running on port ${process.env.PORT}`);
-    })
-  )
-  .catch((err) => console.log(err.message));
+  .then(() => {
+    console.log("MongoDB connected successfully");
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => console.error("MongoDB connection error:", err.message));
 
 app.use("/", routes);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
+export default app;

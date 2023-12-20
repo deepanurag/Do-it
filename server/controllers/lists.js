@@ -2,16 +2,13 @@ import TodoModel from "../models/Todo.js";
 import UserModel from "../models/UserModel.js";
 
 export const getalltodo = async (req, res) => {
-  //const { email } = req.body;
-  const email = "test@test";
   try {
-    const existingUser = await UserModel.findOne({ email: email });
-
+    const existingUser = res.user;
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
-    const todos = await TodoModel.find({ _id: { $in: existingUser.todos } });
 
+    const todos = await TodoModel.find({ _id: { $in: existingUser.todos } });
     return res.status(200).json(todos);
   } catch (error) {
     console.error("Error occurred:", error);
@@ -21,16 +18,17 @@ export const getalltodo = async (req, res) => {
 
 export const createtodo = async (req, res) => {
   const { name } = req.body;
-  const email = "test@test";
-
+  const email = res.user.email;
   try {
-    const existingUser = await UserModel.findOne({ email: email });
-    const existingtodo = await TodoModel.findOne({ name: name });
+    const existingUser = await UserModel.findOne({ email });
     if (!existingUser) {
+      console.error("User not found for email:", email);
       return res.status(404).json({ error: "User not found" });
     }
-    if (existingtodo) {
-      return res.status(404).json({ error: "Same task not allowed" });
+    const existingTodo = await TodoModel.findOne({ name: name });
+    if (existingTodo) {
+      console.error("TODO with the same name already exists:", name);
+      return res.status(400).json({ error: "TODO already exists" });
     }
     const todo = new TodoModel({
       name: name,
@@ -40,39 +38,27 @@ export const createtodo = async (req, res) => {
     await todo.save();
     existingUser.todos = existingUser.todos || [];
     existingUser.todos.push(todo._id);
-
     await existingUser.save();
-
-    res.status(201).json({ message: "TODO created successfully", todo: todo });
+    res.status(201).json({ message: "TODO created successfully", todo });
   } catch (error) {
-    console.error("Error occurred:", error);
+    console.error("Error occurred while creating TODO:", error);
     res.status(500).json({ error: "Failed to create TODO" });
   }
 };
-
 export const deletetodo = async (req, res) => {
-  const { _id } = req.body;
-  const email = "test@test";
-
+  const { id } = req.body;
+  const email = res.user.email;
   try {
-    // Find the existing todo by its ID
-    const existingTodo = await TodoModel.findOne({ _id: _id });
-
-    // Check if existingTodo is null or undefined
+    const existingTodo = await TodoModel.findOne({ _id: id });
     if (!existingTodo) {
       return res.status(404).json({ error: "Task not found" });
     }
-
-    // Delete the todo
-    await TodoModel.deleteOne({ _id: _id });
-
-    // Remove the todo reference from the user
+    await TodoModel.deleteOne({ _id: id });
     const user = await UserModel.findOne({ email: email });
     if (user) {
       user.todos.pull(existingTodo._id);
       await user.save();
     }
-
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error("Error occurred:", error);
