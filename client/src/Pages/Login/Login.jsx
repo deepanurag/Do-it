@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import './Login.css';
+import icon from './check.png';
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,8 +51,13 @@ const Login = () => {
   };
 
   return (
+    <div className="container">
     <div className="right-section">
+      <div className="center-image">
+      <img src={icon}></img>
+      </div>
       <h2 className="right">Login</h2>
+      <p>Please Enter your email and password</p>
       <form className="login-form" onSubmit={handleSubmit}>
         <label htmlFor="email">Email</label>
         <input
@@ -61,7 +67,7 @@ const Login = () => {
           value={email}
           onChange={handleEmailChange}
         />
-
+        <div className="password-box">
         <label htmlFor="password">Password</label>
         <input
           type="password"
@@ -70,13 +76,13 @@ const Login = () => {
           value={password}
           onChange={handlePasswordChange}
         />
-        <br />
-        <button type="submit">Login</button>
-        <br />
+        </div>
+        <button className="button1" type="submit">Login</button>
         <div className="Account">
           Don't have an account? <Link to="/register">Sign up</Link>
         </div>
       </form>
+    </div>
     </div>
   );
 };
