@@ -10,6 +10,7 @@
     backdrop-filter: blur(5.1px);
     -webkit-backdrop-filter: blur(5.1px);
     border: 1px solid rgba(255, 255, 255, 0.39);
+    max-height: 80vh;
 }
 input{
     background: rgba(255, 255, 255, 0);

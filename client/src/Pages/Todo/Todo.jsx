@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import icon from "../Login/check.png";
+import "./Todo.css";
 function TodoList() {
   const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -109,30 +110,47 @@ function TodoList() {
   };
 
   return (
-    <div>
-      <h1>Todo List</h1>
-      <form onSubmit={handleAdd}>
-        <input type="text" value={inputValue} onChange={handleChange} />
-        <button type="submit">Add Todo</button>
-      </form>
-      {error && <p>Error: {error}</p>}
-      <ul>
-        {todos.length === 0 ? (
-          <p>No todos found.</p>
-        ) : (
-          todos.map((todo, index) => (
-            <li key={todo._id}>
-              {todo.name}
-              <button onClick={() => handleDelete(index, todo._id)}>
-                Delete
-              </button>
-            </li>
-          ))
-        )}
-      </ul>
-      <button id="logout-button" onClick={handleLogout}>
-        Logout
-      </button>
+    <div className="container">
+      <div className="right-section">
+        <div className="image-center">
+          <img src={icon}></img>
+        </div>
+        <h1>Todo List</h1>
+        <form className="todo-form1" onSubmit={handleAdd}>
+          <input
+            className="input1"
+            type="text"
+            value={inputValue}
+            onChange={handleChange}
+          />
+          <button className="button2" type="submit">
+            Add Todo
+          </button>
+        </form>
+        {error && <p>Error: {error}</p>}
+        <ul className="ul1">
+          {todos.length === 0 ? (
+            <p>No todos found.</p>
+          ) : (
+            todos.map((todo, index) => (
+              <div className="todo1">
+                <li key={todo._id}>
+                  {todo.name}
+                  <button
+                    className="button3"
+                    onClick={() => handleDelete(index, todo._id)}
+                  >
+                    Delete
+                  </button>
+                </li>
+              </div>
+            ))
+          )}
+        </ul>
+        <button className="button1" id="logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
     </div>
   );
 }
